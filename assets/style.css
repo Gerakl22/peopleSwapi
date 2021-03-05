@@ -1,0 +1,117 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: url("../assets/background-swapi.jpg");
+  background-position: center center;
+  background-size: cover;
+  background-attachment: fixed;
+  font-size: 16px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.people {
+  margin: 50px;
+}
+
+.people__information {
+  margin: 200px 30px 30px 30px;
+  background-color: rgba(250, 235, 215, 0.1);
+  display: flex;
+  color: white;
+}
+
+.people__pagination {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.people__button {
+  width: 50px;
+  height: 50px;
+  font-size: 20px;
+  color: white;
+  border-radius: 100%;
+  border: #33ff00 2px solid;
+  background-color: #000000;
+  margin: 5px;
+  cursor: pointer;
+  outline: none;
+}
+
+.people__button:hover {
+  border: white dotted 2px;
+  color: #33ff00;
+}
+
+.people__button--active {
+  color: red;
+}
+
+.people__search {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+.people__filter {
+  padding: 10px;
+  color: black;
+  font-size: 24px;
+  border: #33ff00 5px solid;
+  outline: none;
+}
+
+.people__wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 auto;
+}
+
+.people__content {
+  flex: 1 1 calc(45% - 30px);
+  min-width: 170px;
+  align-items: center;
+  justify-content: space-evenly;
+  margin: 10px;
+  padding: 20px;
+  background-color: #000000;
+  line-height: 28px;
+}
+
+.people__description {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  align-items: center;
+  margin: 10px;
+}
+
+.people__name {
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 3px;
+}
+
+.people__gender,
+.people__birth-year,
+.people__height,
+.people__mass,
+.people__eye-color,
+.people__hair-color,
+.people__skin-color {
+  padding: 10px;
+}
+
+.people__subtitle {
+  color: rgb(60, 216, 21);
+  text-transform: uppercase;
+}
