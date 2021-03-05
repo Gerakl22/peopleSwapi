@@ -51,7 +51,9 @@ body {
 }
 
 .people__button--active {
-  color: red;
+  background-color: blue;
+  color: #ff0000;
+  border: black dotted 2px;
 }
 
 .people__search {
