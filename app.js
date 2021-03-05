@@ -39,12 +39,9 @@ function createId() {
   return new Date().getTime();
 }
 
-getData();
-
 function displayPeoplePage(arrayPeople, numberOfArticlesOnPage) {
   let output = "";
   currentPage--;
-  console.log(currentPage);
 
   let start = numberOfArticlesOnPage * currentPage;
 
@@ -98,17 +95,19 @@ function paginationButton(page, arrayPeople, numberOfArticlesOnPage) {
   btnNode.classList.add("people__button");
   btnNode.textContent = page;
 
-  if (currentPage == page) btnNode.classList.add("people__button--active");
+  if (currentPage === page - 1) {
+    btnNode.classList.add("people__button--active");
+  }
 
   btnNode.addEventListener("click", function () {
     currentPage = page;
+
     displayPeoplePage(arrayPeople, numberOfArticlesOnPage);
 
     let currentBtnNode = document.querySelector(".people__button--active");
-    console.log(currentBtnNode);
     currentBtnNode.classList.remove("people__button--active");
 
-    currentBtnNode.classList.add("people__button--active");
+    btnNode.classList.add("people__button--active");
   });
 
   return btnNode;
@@ -162,4 +161,5 @@ function paginationButton(page, arrayPeople, numberOfArticlesOnPage) {
 //   };
 // }
 
+getData();
 bodyNode.addEventListener("keyup", filterPerson);
