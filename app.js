@@ -1,4 +1,5 @@
 const urlPeople = "https://swapi.dev/api/people";
+const urlSearch = "https://swapi.dev/api/people/?search=";
 
 const bodyNode = document.body;
 
@@ -6,9 +7,11 @@ const sectionPeopleNode = document.querySelector(".people");
 const wrapperPeopleNode = document.querySelector(".people__wrapper");
 const paginationNode = document.querySelector(".people__pagination");
 
-let currentPage = 1;
-const numberOfArticlesOnPage = 10;
-let arrayPeople = [];
+const state = {
+  currentPage: 1,
+  numberOfArticlesOnPage: 10,
+  arrayPeople: [],
+};
 
 async function getData() {
   try {
@@ -17,11 +20,23 @@ async function getData() {
     );
     const data = await Promise.all(responses.map((res) => res.json()));
 
-    data.forEach((person) => arrayPeople.push(...person.results));
-    console.log(arrayPeople);
+    data.forEach((person) => state.arrayPeople.push(...person.results));
 
-    displayPeoplePage(arrayPeople, numberOfArticlesOnPage);
-    paginationPeople(arrayPeople, numberOfArticlesOnPage);
+    openPageOfPeople(state.arrayPeople);
+    paginationPeople(state.arrayPeople);
+  } catch (e) {
+    throw new Error(e.message);
+  }
+}
+
+async function getSearch(name) {
+  try {
+    const response = await fetch(`${urlSearch}${name}`);
+    const data = await response.json();
+
+    state.arrayPeople = data.results.slice();
+
+    searchPeople(state.arrayPeople);
   } catch (e) {
     throw new Error(e.message);
   }
@@ -29,7 +44,7 @@ async function getData() {
 
 function createArrayUrlsOfPeople() {
   let people = [];
-  for (let i = 1; i < 10; i++) {
+  for (let i = 1; i <= 9; i++) {
     people.push(`${urlPeople}/?page=${i}`);
   }
 
@@ -37,20 +52,13 @@ function createArrayUrlsOfPeople() {
 }
 
 function createId(id) {
-  let arr = id.split("");
-  return arr.slice(-7, -1).join("");
+  return id.split("").slice(-7, -1).join("");
 }
 
-function displayPeoplePage(arrayPeople, numberOfArticlesOnPage) {
+function displayPeople(arrayPeople) {
   let output = "";
-  currentPage--;
 
-  let start = numberOfArticlesOnPage * currentPage;
-
-  let end = start + numberOfArticlesOnPage;
-  let paginatedArray = arrayPeople.slice(start, end);
-
-  paginatedArray.map((person) => {
+  arrayPeople.map((person) => {
     output += `<div class="people__content" id=${createId(person.created)}>
                     <h3 class="people__name" id=${createId(person.created)}>${
       person.name
@@ -87,33 +95,13 @@ function displayPeoplePage(arrayPeople, numberOfArticlesOnPage) {
 
     wrapperPeopleNode.innerHTML = output;
   });
-
-  wrapperPeopleNode.addEventListener("click", function (e) {
-    if (e.target.classList.contains("people__name")) {
-      let peopleContentNode = e.target.parentNode;
-      let peopleDescriptionNode = peopleContentNode.querySelector(
-        ".people__description"
-      );
-      let btnCloseDescriptionNode = peopleContentNode.querySelector(
-        ".people__button--absolute"
-      );
-
-      if (e.target) {
-        if (peopleContentNode.dataset.id === peopleDescriptionNode.dataset.id) {
-          peopleDescriptionNode.style.display = "flex";
-        }
-
-        btnCloseDescriptionNode.addEventListener("click", () => {
-          peopleDescriptionNode.style.display = "none";
-        });
-      }
-    }
-  });
 }
 
 function filterPerson(e) {
   let text = e.target.value.toLowerCase().trim();
   let people = e.currentTarget.getElementsByTagName("h3");
+
+  getSearch(text);
 
   Array.from(people).forEach((person) => {
     let personName = person.textContent;
@@ -125,30 +113,31 @@ function filterPerson(e) {
   });
 }
 
-function paginationPeople(arrayPeople, numberOfArticlesOnPage) {
-  paginationNode.innerHTML = "";
+function openPageOfPeople(arrayPeople) {
+  state.currentPage--;
 
-  let pageCount = Math.ceil(arrayPeople.length / numberOfArticlesOnPage);
+  let start = state.numberOfArticlesOnPage * state.currentPage;
 
-  for (let i = 1; i <= pageCount; i++) {
-    let btnNode = paginationButton(i, arrayPeople, numberOfArticlesOnPage);
-    paginationNode.appendChild(btnNode);
-  }
+  let end = start + state.numberOfArticlesOnPage;
+
+  let paginatedArray = arrayPeople.slice(start, end);
+
+  displayPeople(paginatedArray);
 }
 
-function paginationButton(page, arrayPeople, numberOfArticlesOnPage) {
+function paginationButton(page, arrayPeople) {
   let btnNode = document.createElement("button");
   btnNode.classList.add("people__button");
   btnNode.textContent = page;
 
-  if (currentPage === page - 1) {
+  if (state.currentPage === page - 1) {
     btnNode.classList.add("people__button--active");
   }
 
   btnNode.addEventListener("click", function () {
-    currentPage = page;
+    state.currentPage = page;
 
-    displayPeoplePage(arrayPeople, numberOfArticlesOnPage);
+    openPageOfPeople(arrayPeople);
 
     let currentBtnNode = document.querySelector(".people__button--active");
     currentBtnNode.classList.remove("people__button--active");
@@ -159,5 +148,44 @@ function paginationButton(page, arrayPeople, numberOfArticlesOnPage) {
   return btnNode;
 }
 
+function paginationPeople(arrayPeople) {
+  paginationNode.innerHTML = "";
+
+  let pageCount = Math.ceil(arrayPeople.length / state.numberOfArticlesOnPage);
+
+  for (let page = 1; page <= pageCount; page++) {
+    let btnNode = paginationButton(page, arrayPeople);
+    paginationNode.appendChild(btnNode);
+  }
+}
+
+function searchPeople(arrayPeople) {
+  displayPeople(arrayPeople);
+}
+
+function toggleContentPeople(e) {
+  if (e.target.classList.contains("people__name")) {
+    let peopleContentNode = e.target.parentNode;
+    let peopleDescriptionNode = peopleContentNode.querySelector(
+      ".people__description"
+    );
+    let btnCloseDescriptionNode = peopleContentNode.querySelector(
+      ".people__button--absolute"
+    );
+
+    if (e.target) {
+      if (peopleContentNode.dataset.id === peopleDescriptionNode.dataset.id) {
+        peopleDescriptionNode.style.display = "flex";
+      }
+
+      btnCloseDescriptionNode.addEventListener("click", () => {
+        peopleDescriptionNode.style.display = "none";
+      });
+    }
+  }
+}
+
 getData();
-bodyNode.addEventListener("keyup", filterPerson);
+
+bodyNode.addEventListener("input", filterPerson);
+wrapperPeopleNode.addEventListener("click", toggleContentPeople);
