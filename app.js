@@ -3,7 +3,6 @@ const urlSearch = "https://swapi.dev/api/people/?search=";
 
 const bodyNode = document.body;
 
-const sectionPeopleNode = document.querySelector(".people");
 const wrapperPeopleNode = document.querySelector(".people__wrapper");
 const paginationNode = document.querySelector(".people__pagination");
 
@@ -36,7 +35,7 @@ async function getSearch(name) {
 
     state.arrayPeople = data.results.slice();
 
-    searchPeople(state.arrayPeople);
+    displayPeople(state.arrayPeople);
   } catch (e) {
     throw new Error(e.message);
   }
@@ -157,10 +156,6 @@ function paginationPeople(arrayPeople) {
     let btnNode = paginationButton(page, arrayPeople);
     paginationNode.appendChild(btnNode);
   }
-}
-
-function searchPeople(arrayPeople) {
-  displayPeople(arrayPeople);
 }
 
 function toggleContentPeople(e) {
