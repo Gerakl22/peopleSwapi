@@ -21,7 +21,7 @@ async function getData() {
 
     data.forEach((person) => state.arrayPeople.push(...person.results));
 
-    openPageOfPeople(state.arrayPeople);
+    togglePageWithPeople(state.arrayPeople);
     paginatePeople(state.arrayPeople);
   } catch (e) {
     throw new Error(e.message);
@@ -112,18 +112,6 @@ function filterPerson(e) {
   });
 }
 
-function openPageOfPeople(arrayPeople) {
-  state.currentPage--;
-
-  let start = state.numberOfArticlesOnPage * state.currentPage;
-
-  let end = start + state.numberOfArticlesOnPage;
-
-  let paginatedArray = arrayPeople.slice(start, end);
-
-  displayPeople(paginatedArray);
-}
-
 function paginateButton(page, arrayPeople) {
   let btnNode = document.createElement("button");
   btnNode.classList.add("people__button");
@@ -136,7 +124,7 @@ function paginateButton(page, arrayPeople) {
   btnNode.addEventListener("click", function () {
     state.currentPage = page;
 
-    openPageOfPeople(arrayPeople);
+    togglePageWithPeople(arrayPeople);
 
     let currentBtnNode = document.querySelector(".people__button--active");
     currentBtnNode.classList.remove("people__button--active");
@@ -158,7 +146,7 @@ function paginatePeople(arrayPeople) {
   }
 }
 
-function toggleContentPeople(e) {
+function toggleContentWithPeople(e) {
   if (e.target.classList.contains("people__name")) {
     let peopleContentNode = e.target.parentNode;
     let peopleDescriptionNode = peopleContentNode.querySelector(
@@ -180,7 +168,19 @@ function toggleContentPeople(e) {
   }
 }
 
+function togglePageWithPeople(arrayPeople) {
+  state.currentPage--;
+
+  let start = state.numberOfArticlesOnPage * state.currentPage;
+
+  let end = start + state.numberOfArticlesOnPage;
+
+  let paginatedArray = arrayPeople.slice(start, end);
+
+  displayPeople(paginatedArray);
+}
+
 getData();
 
 bodyNode.addEventListener("input", filterPerson);
-wrapperPeopleNode.addEventListener("click", toggleContentPeople);
+wrapperPeopleNode.addEventListener("click", toggleContentWithPeople);
