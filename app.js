@@ -22,7 +22,7 @@ async function getData() {
     data.forEach((person) => state.arrayPeople.push(...person.results));
 
     openPageOfPeople(state.arrayPeople);
-    paginationPeople(state.arrayPeople);
+    paginatePeople(state.arrayPeople);
   } catch (e) {
     throw new Error(e.message);
   }
@@ -124,7 +124,7 @@ function openPageOfPeople(arrayPeople) {
   displayPeople(paginatedArray);
 }
 
-function paginationButton(page, arrayPeople) {
+function paginateButton(page, arrayPeople) {
   let btnNode = document.createElement("button");
   btnNode.classList.add("people__button");
   btnNode.textContent = page;
@@ -147,13 +147,13 @@ function paginationButton(page, arrayPeople) {
   return btnNode;
 }
 
-function paginationPeople(arrayPeople) {
+function paginatePeople(arrayPeople) {
   paginationNode.innerHTML = "";
 
   let pageCount = Math.ceil(arrayPeople.length / state.numberOfArticlesOnPage);
 
   for (let page = 1; page <= pageCount; page++) {
-    let btnNode = paginationButton(page, arrayPeople);
+    let btnNode = paginateButton(page, arrayPeople);
     paginationNode.appendChild(btnNode);
   }
 }
