@@ -1,4 +1,4 @@
-const urlPeople = "https://swapi.dev/api/people";
+const urlPeople = "https://swapi.dev/api/people/?page=";
 const urlSearch = "https://swapi.dev/api/people/?search=";
 
 const bodyNode = document.body;
@@ -9,45 +9,36 @@ const paginationNode = document.querySelector(".people__pagination");
 const state = {
   currentPage: 1,
   numberOfArticlesOnPage: 10,
-  arrayPeople: [],
+  text: null,
+  isSearch: false,
 };
 
-async function getData() {
+async function getData(url, id) {
   try {
-    const responses = await Promise.all(
-      createArrayUrlsOfPeople().map((url) => fetch(url))
-    );
-    const data = await Promise.all(responses.map((res) => res.json()));
+    if (url === urlSearch) {
+      state.isSearch = true;
+      state.currentPage = 1;
+    }
 
-    data.forEach((person) => state.arrayPeople.push(...person.results));
-
-    togglePageWithPeople(state.arrayPeople);
-    paginatePeople(state.arrayPeople);
-  } catch (e) {
-    throw new Error(e.message);
-  }
-}
-
-async function getSearch(name) {
-  try {
-    const response = await fetch(`${urlSearch}${name}`);
+    const response = await fetch(`${url}${id}`);
     const data = await response.json();
 
-    state.arrayPeople = data.results.slice();
-
-    displayPeople(state.arrayPeople);
-  } catch (e) {
-    throw new Error(e.message);
+    displayPeople(data.results);
+    paginatePeople(data.results, data.count);
+  } catch (error) {
+    throw new Error(error.message);
   }
 }
 
-function createArrayUrlsOfPeople() {
-  let people = [];
-  for (let i = 1; i <= 9; i++) {
-    people.push(`${urlPeople}/?page=${i}`);
-  }
+async function getNextSearch(url, text, id) {
+  try {
+    const response = await fetch(`${url}${text}&page=${id}`);
+    const data = await response.json();
 
-  return people;
+    displayPeople(data.results);
+  } catch (error) {
+    throw new Error(error.message);
+  }
 }
 
 function createId(id) {
@@ -100,7 +91,9 @@ function filterPerson(e) {
   let text = e.target.value.toLowerCase().trim();
   let people = e.currentTarget.getElementsByTagName("h3");
 
-  getSearch(text);
+  state.text = text;
+
+  getData(urlSearch, state.text);
 
   Array.from(people).forEach((person) => {
     let personName = person.textContent;
@@ -112,19 +105,24 @@ function filterPerson(e) {
   });
 }
 
-function paginateButton(page, arrayPeople) {
+function paginateButton(page) {
   let btnNode = document.createElement("button");
   btnNode.classList.add("people__button");
   btnNode.textContent = page;
 
-  if (state.currentPage === page - 1) {
+  if (state.currentPage === page) {
     btnNode.classList.add("people__button--active");
   }
 
-  btnNode.addEventListener("click", function () {
+  btnNode.addEventListener("click", () => {
     state.currentPage = page;
 
-    togglePageWithPeople(arrayPeople);
+    if (state.isSearch === true) {
+      getNextSearch(urlSearch, state.text, state.currentPage);
+    } else {
+      state.isSearch = false;
+      getData(urlPeople, state.currentPage);
+    }
 
     let currentBtnNode = document.querySelector(".people__button--active");
     currentBtnNode.classList.remove("people__button--active");
@@ -135,10 +133,10 @@ function paginateButton(page, arrayPeople) {
   return btnNode;
 }
 
-function paginatePeople(arrayPeople) {
+function paginatePeople(arrayPeople, numberOfPeople) {
   paginationNode.innerHTML = "";
 
-  let pageCount = Math.ceil(arrayPeople.length / state.numberOfArticlesOnPage);
+  let pageCount = Math.ceil(numberOfPeople / state.numberOfArticlesOnPage);
 
   for (let page = 1; page <= pageCount; page++) {
     let btnNode = paginateButton(page, arrayPeople);
@@ -168,19 +166,7 @@ function toggleContentWithPeople(e) {
   }
 }
 
-function togglePageWithPeople(arrayPeople) {
-  state.currentPage--;
-
-  let start = state.numberOfArticlesOnPage * state.currentPage;
-
-  let end = start + state.numberOfArticlesOnPage;
-
-  let paginatedArray = arrayPeople.slice(start, end);
-
-  displayPeople(paginatedArray);
-}
-
-getData();
+getData(urlPeople, state.currentPage);
 
 bodyNode.addEventListener("input", filterPerson);
 wrapperPeopleNode.addEventListener("click", toggleContentWithPeople);
