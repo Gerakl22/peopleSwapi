@@ -1,4 +1,5 @@
-const urlPeople = "https://swapi.dev/api/people/?page=";
+const urlPeople = "https://swapi.dev/api/people/";
+const urlPeoplePage = "https://swapi.dev/api/people/?page=";
 const urlSearch = "https://swapi.dev/api/people/?search=";
 
 const bodyNode = document.body;
@@ -41,45 +42,29 @@ async function getNextSearch(url, text, id) {
   }
 }
 
-function createId(id) {
-  return id.split("").slice(-7, -1).join("");
+async function getDescriptionPeople(url) {
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+  } catch (error) {
+    throw new Error(error.message);
+  }
 }
 
 function displayPeople(arrayPeople) {
   let output = "";
-
   arrayPeople.map((person) => {
-    output += `<div class="people__content" id=${createId(person.created)}>
-                    <h3 class="people__name" id=${createId(person.created)}>${
-      person.name
-    }</h3>
-                    <div class="people__description" id=${createId(
-                      person.created
-                    )}>
-                      <p class="people__gender"> <span class="people__subtitle">Gender:</span> ${
-                        person.gender
-                      }</p>
-                      <p class="people__birth-year"> <span class="people__subtitle">Birthday:</span> ${
-                        person.birth_year
-                      }</p>
-                      <p class="people__height"> <span class="people__subtitle">Height:</span> ${
-                        person.height
-                      }</p>
-                      <p class="people__mass"> <span class="people__subtitle">Mass:</span> ${
-                        person.mass
-                      }</p>
-                      <p class="people__eye-color"> <span class="people__subtitle">Eye color:</span> ${
-                        person.eye_color
-                      }</p>
-                      <p class="people__hair-color"> <span class="people__subtitle">Hair color:</span> ${
-                        person.hair_color
-                      }</p>
-                      <p class="people__skin-color"> <span class="people__subtitle">Skin color:</span> ${
-                        person.skin_color
-                      }</p>
-                      <button class="people__button people__button--absolute" id=${createId(
-                        person.created
-                      )}>X</button>
+    output += `<div class="people__content" id=${person.url}>
+                    <h3 class="people__name" id=${person.url}>${person.name}</h3>
+                    <div class="people__description" id=${person.url}>
+                      <p class="people__gender"> <span class="people__subtitle">Gender:</span> ${person.gender}</p>
+                      <p class="people__birth-year"> <span class="people__subtitle">Birthday:</span> ${person.birth_year}</p>
+                      <p class="people__height"> <span class="people__subtitle">Height:</span> ${person.height}</p>
+                      <p class="people__mass"> <span class="people__subtitle">Mass:</span> ${person.mass}</p>
+                      <p class="people__eye-color"> <span class="people__subtitle">Eye color:</span> ${person.eye_color}</p>
+                      <p class="people__hair-color"> <span class="people__subtitle">Hair color:</span> ${person.hair_color}</p>
+                      <p class="people__skin-color"> <span class="people__subtitle">Skin color:</span> ${person.skin_color}</p>
+                      <button class="people__button people__button--absolute" id=${person.url}>X</button>
                     </div>
                 </div>`;
 
@@ -121,7 +106,7 @@ function paginateButton(page) {
       getNextSearch(urlSearch, state.text, state.currentPage);
     } else {
       state.isSearch = false;
-      getData(urlPeople, state.currentPage);
+      getData(urlPeoplePage, state.currentPage);
     }
 
     let currentBtnNode = document.querySelector(".people__button--active");
@@ -155,7 +140,8 @@ function toggleContentWithPeople(e) {
     );
 
     if (e.target) {
-      if (peopleContentNode.dataset.id === peopleDescriptionNode.dataset.id) {
+      if (peopleContentNode.id === peopleDescriptionNode.id) {
+        getDescriptionPeople(peopleContentNode.id);
         peopleDescriptionNode.style.display = "flex";
       }
 
@@ -166,7 +152,7 @@ function toggleContentWithPeople(e) {
   }
 }
 
-getData(urlPeople, state.currentPage);
+getData(urlPeoplePage, state.currentPage);
 
 bodyNode.addEventListener("input", filterPerson);
 wrapperPeopleNode.addEventListener("click", toggleContentWithPeople);
