@@ -42,10 +42,12 @@ async function getNextSearch(url, text, id) {
   }
 }
 
-async function getDescriptionPeople(url) {
+async function getDescriptionPerson(url) {
   try {
     const response = await fetch(url);
-    const data = await response.json();
+    const person = await response.json();
+
+    displayDescriptionPerson(person);
   } catch (error) {
     throw new Error(error.message);
   }
@@ -54,22 +56,36 @@ async function getDescriptionPeople(url) {
 function displayPeople(arrayPeople) {
   let output = "";
   arrayPeople.map((person) => {
-    output += `<div class="people__content" id=${person.url}>
+    output += `<div class="people__content">
                     <h3 class="people__name" id=${person.url}>${person.name}</h3>
-                    <div class="people__description" id=${person.url}>
-                      <p class="people__gender"> <span class="people__subtitle">Gender:</span> ${person.gender}</p>
-                      <p class="people__birth-year"> <span class="people__subtitle">Birthday:</span> ${person.birth_year}</p>
-                      <p class="people__height"> <span class="people__subtitle">Height:</span> ${person.height}</p>
-                      <p class="people__mass"> <span class="people__subtitle">Mass:</span> ${person.mass}</p>
-                      <p class="people__eye-color"> <span class="people__subtitle">Eye color:</span> ${person.eye_color}</p>
-                      <p class="people__hair-color"> <span class="people__subtitle">Hair color:</span> ${person.hair_color}</p>
-                      <p class="people__skin-color"> <span class="people__subtitle">Skin color:</span> ${person.skin_color}</p>
-                      <button class="people__button people__button--absolute" id=${person.url}>X</button>
-                    </div>
                 </div>`;
 
     wrapperPeopleNode.innerHTML = output;
   });
+}
+
+function displayDescriptionPerson(person) {
+  let personDescription = `<div class="people__content">
+                          <h3 class="people__name">${person.name}</h3>
+                          <div class="people__description">
+                              <p class="people__gender"> <span class="people__subtitle">Gender:</span> ${person.gender}</p>
+                              <p class="people__birth-year"> <span class="people__subtitle">Birthday:</span> ${person.birth_year}</p>
+                              <p class="people__height"> <span class="people__subtitle">Height:</span> ${person.height}</p>
+                              <p class="people__mass"> <span class="people__subtitle">Mass:</span> ${person.mass}</p>
+                              <p class="people__eye-color"> <span class="people__subtitle">Eye color:</span> ${person.eye_color}</p>
+                              <p class="people__hair-color"> <span class="people__subtitle">Hair color:</span> ${person.hair_color}</p>
+                              <p class="people__skin-color"> <span class="people__subtitle">Skin color:</span> ${person.skin_color}</p>
+                              <button class="people__button people__button--absolute">X</button>
+                          </div>
+                        </div> `;
+
+  wrapperPeopleNode.innerHTML = personDescription;
+
+  let btnCloseDescriptionNode = wrapperPeopleNode.querySelector(
+    ".people__button--absolute"
+  );
+
+  btnCloseDescriptionNode.addEventListener("click", updateStateSearch);
 }
 
 function filterPerson(e) {
@@ -102,12 +118,7 @@ function paginateButton(page) {
   btnNode.addEventListener("click", () => {
     state.currentPage = page;
 
-    if (state.isSearch === true) {
-      getNextSearch(urlSearch, state.text, state.currentPage);
-    } else {
-      state.isSearch = false;
-      getData(urlPeoplePage, state.currentPage);
-    }
+    updateStateSearch();
 
     let currentBtnNode = document.querySelector(".people__button--active");
     currentBtnNode.classList.remove("people__button--active");
@@ -129,30 +140,20 @@ function paginatePeople(arrayPeople, numberOfPeople) {
   }
 }
 
-function toggleContentWithPeople(e) {
-  if (e.target.classList.contains("people__name")) {
-    let peopleContentNode = e.target.parentNode;
-    let peopleDescriptionNode = peopleContentNode.querySelector(
-      ".people__description"
-    );
-    let btnCloseDescriptionNode = peopleContentNode.querySelector(
-      ".people__button--absolute"
-    );
-
-    if (e.target) {
-      if (peopleContentNode.id === peopleDescriptionNode.id) {
-        getDescriptionPeople(peopleContentNode.id);
-        peopleDescriptionNode.style.display = "flex";
-      }
-
-      btnCloseDescriptionNode.addEventListener("click", () => {
-        peopleDescriptionNode.style.display = "none";
-      });
-    }
+function updateStateSearch() {
+  if (state.isSearch === true) {
+    getNextSearch(urlSearch, state.text, state.currentPage);
+  } else {
+    state.isSearch = false;
+    getData(urlPeoplePage, state.currentPage);
   }
 }
 
 getData(urlPeoplePage, state.currentPage);
 
 bodyNode.addEventListener("input", filterPerson);
-wrapperPeopleNode.addEventListener("click", toggleContentWithPeople);
+wrapperPeopleNode.addEventListener("click", (e) => {
+  if (e.target.classList.contains("people__name")) {
+    getDescriptionPerson(e.target.id);
+  }
+});
