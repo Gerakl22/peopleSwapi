@@ -96,7 +96,6 @@ body {
 }
 
 .people__description {
-  display: none;
   flex-wrap: wrap;
   justify-content: space-evenly;
   align-items: center;
