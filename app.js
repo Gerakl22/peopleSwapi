@@ -84,6 +84,11 @@ function displayDescriptionPerson(person) {
   let btnCloseDescriptionNode = wrapperPeopleNode.querySelector(
     ".people__button--absolute"
   );
+  let peopleNameNode = wrapperPeopleNode.querySelector(".people__name");
+
+  peopleNameNode.addEventListener("click", (e) => {
+    e.stopPropagation();
+  });
 
   btnCloseDescriptionNode.addEventListener("click", updateStateSearch);
 }
